@@ -382,11 +382,13 @@ def joss_ann_wrapper(player, opponent, proposed_action, probability):
     -------
     action: an axelrod.Action, C or D
     """
-    choices = [axelrod.Cooperator, axelrod.Defector]
-    JossAnnClass = MixedTransformer(probability, choices)(player.original_class)
-    JossAnnPlayer = JossAnnClass(*player.init_args)
+    if not player.history:
+        choices = [axelrod.Cooperator, axelrod.Defector]
+        JossAnnClass = MixedTransformer(probability, choices)(player.original_class)
+        player._JossAnnPlayer = JossAnnClass(*player.init_args)
 
-    action = JossAnnPlayer.strategy(opponent)
+    action = player._JossAnnPlayer.strategy(opponent)
+    player._JossAnnPlayer.history.append(action)
     return action
 
 
