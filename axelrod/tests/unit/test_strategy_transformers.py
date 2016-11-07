@@ -144,7 +144,7 @@ class TestTransformers(unittest.TestCase):
         axelrod.seed(0)
         for _ in range(5):
             p1.play(p2)
-        self.assertEqual(p1.history, [D, C, C, D, D])
+        self.assertEqual(p1.history, [C, C, D, D, D])
 
     def test_noisy_transformer(self):
         """Tests that the noisy transformed does flip some moves."""

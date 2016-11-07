@@ -9,6 +9,7 @@ See the various Meta strategies for another type of transformation.
 import inspect
 import random
 import collections
+import axelrod
 from numpy.random import choice
 from .actions import Actions, flip_action
 from .random_ import random_choice
@@ -373,21 +374,19 @@ def joss_ann_wrapper(player, opponent, proposed_action, probability):
     opponent: Player object or subclass
     proposed_action: axelrod.Action, C or D
         The proposed action by the wrapped strategy
-    probability: tuple
-        a tuple or list representing a probability distribution of playing move
-        C or D (doesn't have to be complete) ie. (0, 1) or (0.2, 0.3)
+    probability: a float (or integer: 0 or 1) OR an iterable representing a
+        an incomplete probability distribution (entries to do not have to sum to
+        1). Eg: 0, 1, [.5,.5], (.5,.3)
 
     Returns
     -------
     action: an axelrod.Action, C or D
     """
-    if sum(probability) > 1:
-        probability[:] = [i / sum(probability) for i in probability]
+    choices = [axelrod.Cooperator, axelrod.Defector]
+    JossAnnClass = MixedTransformer(probability, choices)(player.original_class)
+    JossAnnPlayer = JossAnnClass(*player.init_args)
 
-    remaining_probability = max(0, 1 - probability[0] - probability[1])
-    probability += (remaining_probability,)
-    options = [C, D, proposed_action]
-    action = choice(options, p=probability)
+    action = JossAnnPlayer.strategy(opponent)
     return action
 
 
